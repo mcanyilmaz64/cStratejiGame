@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "oyun.h"
 
 // Basit bir anahtar-değer çifti yapısı
 struct KeyValuePair {
@@ -16,7 +17,6 @@ char* read_file(const char* filename) {
         return NULL;
     }
 
-    // Dosyanın boyutunu öğrenip bellekte yer açma
     fseek(file, 0, SEEK_END);
     long length = ftell(file);
     fseek(file, 0, SEEK_SET);
@@ -24,7 +24,7 @@ char* read_file(const char* filename) {
     char *content = malloc(length + 1);
     if (content) {
         fread(content, 1, length, file);
-        content[length] = '\0';  // Sonuna null karakter ekleyelim
+        content[length] = '\0';  // Null sonlandırıcı ekle
     }
     
     fclose(file);
@@ -32,24 +32,24 @@ char* read_file(const char* filename) {
 }
 
 // JSON'dan anahtar-değer çiftlerini ayrıştıran fonksiyon
-int parse_json(const char *json_str, struct KeyValuePair *pairs, int max_pairs) {
+void parse_json(const char *json_str) {
     const char *pos = json_str;
-    int count = 0;
 
-    while (*pos && count < max_pairs) {
+    while (*pos) {
         // Anahtarı bulmak için ilk tırnağı ara
         pos = strchr(pos, '"');
-        if (!pos) break;  // Eğer tırnak yoksa çık
+        if (!pos) break;
 
         const char *key_start = ++pos;  // Anahtar tırnaktan sonra başlar
         pos = strchr(pos, '"');
         if (!pos) break;
         const char *key_end = pos;
 
-        // Anahtar uzunluğunu kopyala
+        // Anahtar uzunluğunu al
         int key_length = key_end - key_start;
-        strncpy(pairs[count].key, key_start, key_length);
-        pairs[count].key[key_length] = '\0';  // Null sonlandırıcı ekle
+        char key[256];
+        strncpy(key, key_start, key_length);
+        key[key_length] = '\0';  // Null sonlandırıcı ekle
 
         // ':' karakterini bul (anahtar-değer ayırıcı)
         pos = strchr(pos, ':');
@@ -57,28 +57,32 @@ int parse_json(const char *json_str, struct KeyValuePair *pairs, int max_pairs) 
         pos++;  // ':' karakterini atla
 
         // Değeri bulmak için ilk tırnağı ara
-        while (*pos == ' ' || *pos == '"') pos++;  // Boşlukları atla
+        while (*pos == ' ' || *pos == '"') pos++;  // Boşlukları ve tırnakları atla
         const char *value_start = pos;
 
-        // Değer sonunu belirlemek için virgül veya kapanış karakterini bul
+        // Değer sonunu bul
         while (*pos && *pos != ',' && *pos != '}' && *pos != '"') pos++;
         const char *value_end = pos;
 
-        // Değer uzunluğunu kopyala
+        // Değer uzunluğunu al
         int value_length = value_end - value_start;
-        strncpy(pairs[count].value, value_start, value_length);
-        pairs[count].value[value_length] = '\0';  // Null sonlandırıcı ekle
+        char value[256];
+        strncpy(value, value_start, value_length);
+        value[value_length] = '\0';  // Null sonlandırıcı ekle
 
-        count++;
+        // Anahtar ve değeri yazdır
+        printf("Anahtar: %s, Değer: %s\n", key, value);
+
         pos++;  // Sonraki anahtar-değer çiftine geç
     }
-
-    return count;
 }
 
 int main() {
-    // JSON dosyasının yolu
-    const char *filename = "1.json";  // Örnek olarak bir JSON dosyası
+    //örnek kullanım. #include "oyun.h" unutulmamalı
+    OyunDurumu oyun;
+    oyun.insan_imparatorlugu.birimler.piyadeler = 1;
+
+    const char *filename = "Files\\1.json";  // JSON dosyasının adı
     char *json_content = read_file(filename);
 
     if (json_content == NULL) {
@@ -86,16 +90,11 @@ int main() {
         return 1;
     }
 
-    // Anahtar-değer çiftlerini saklayacak alan
-    struct KeyValuePair pairs[10];
-    int num_pairs = parse_json(json_content, pairs, 10);
+    // JSON dosyasını ayrıştır
+    parse_json(json_content);
 
-    // Bulunan anahtar-değer çiftlerini yazdırma
-    for (int i = 0; i < num_pairs; i++) {
-        printf("Anahtar: %s, Değer: %s\n", pairs[i].key, pairs[i].value);
-    }
+    // Belleği serbest bırak
+    free(json_content);
 
-    free(json_content);  // Bellekteki dosya içeriğini serbest bırak
-
-   return 0;
+    return 0;
 }
