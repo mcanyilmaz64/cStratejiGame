@@ -1,100 +1,59 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "oyun.h"
-
-// Basit bir anahtar-değer çifti yapısı
-struct KeyValuePair {
-    char key[256];
-    char value[256];
-};
-
-// JSON dosyasını okuyan fonksiyon
-char* read_file(const char* filename) {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Dosya açılamadı: %s\n", filename);
-        return NULL;
-    }
-
-    fseek(file, 0, SEEK_END);
-    long length = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    
-    char *content = malloc(length + 1);
-    if (content) {
-        fread(content, 1, length, file);
-        content[length] = '\0';  // Null sonlandırıcı ekle
-    }
-    
-    fclose(file);
-    return content;
-}
-
-// JSON'dan anahtar-değer çiftlerini ayrıştıran fonksiyon
-void parse_json(const char *json_str) {
-    const char *pos = json_str;
-
-    while (*pos) {
-        // Anahtarı bulmak için ilk tırnağı ara
-        pos = strchr(pos, '"');
-        if (!pos) break;
-
-        const char *key_start = ++pos;  // Anahtar tırnaktan sonra başlar
-        pos = strchr(pos, '"');
-        if (!pos) break;
-        const char *key_end = pos;
-
-        // Anahtar uzunluğunu al
-        int key_length = key_end - key_start;
-        char key[256];
-        strncpy(key, key_start, key_length);
-        key[key_length] = '\0';  // Null sonlandırıcı ekle
-
-        // ':' karakterini bul (anahtar-değer ayırıcı)
-        pos = strchr(pos, ':');
-        if (!pos) break;
-        pos++;  // ':' karakterini atla
-
-        // Değeri bulmak için ilk tırnağı ara
-        while (*pos == ' ' || *pos == '"') pos++;  // Boşlukları ve tırnakları atla
-        const char *value_start = pos;
-
-        // Değer sonunu bul
-        while (*pos && *pos != ',' && *pos != '}' && *pos != '"') pos++;
-        const char *value_end = pos;
-
-        // Değer uzunluğunu al
-        int value_length = value_end - value_start;
-        char value[256];
-        strncpy(value, value_start, value_length);
-        value[value_length] = '\0';  // Null sonlandırıcı ekle
-
-        // Anahtar ve değeri yazdır
-        printf("Anahtar: %s, Değer: %s\n", key, value);
-
-        pos++;  // Sonraki anahtar-değer çiftine geç
-    }
-}
+#include "oyun.h"  // heroesParse.h başlık dosyasını dahil ediyoruz
 
 int main() {
-    //örnek kullanım. #include "oyun.h" unutulmamalı
-    OyunDurumu oyun;
-    oyun.insan_imparatorlugu.birimler.piyadeler = 1;
-
-    const char *filename = "Files\\1.json";  // JSON dosyasının adı
-    char *json_content = read_file(filename);
-
-    if (json_content == NULL) {
-        printf("Dosya okunamadı: %s\n", filename);
+    // JSON dosyasını oku
+    char *json = readFile("heroes.json");
+    if (json == NULL) {
         return 1;
     }
 
-    // JSON dosyasını ayrıştır
-    parse_json(json_content);
+    // Imparatorluk struct'ını oluştur
+    Imparatorluk imparatorluk;
 
-    // Belleği serbest bırak
-    free(json_content);
+    // JSON'u ayrıştır
+    parseJSON(json, &imparatorluk);
+
+    // Verileri ekrana yazdır
+    printf("Alparslan: %s, %s, %s\n", imparatorluk.insan_imparatorlugu.Alparslan.bonus_turu,
+                                      imparatorluk.insan_imparatorlugu.Alparslan.bonus_degeri,
+                                      imparatorluk.insan_imparatorlugu.Alparslan.aciklama);
+
+    printf("Fatih Sultan Mehmet: %s, %s, %s\n", imparatorluk.insan_imparatorlugu.Fatih_Sultan_Mehmet.bonus_turu,
+                                                imparatorluk.insan_imparatorlugu.Fatih_Sultan_Mehmet.bonus_degeri,
+                                                imparatorluk.insan_imparatorlugu.Fatih_Sultan_Mehmet.aciklama);
+
+    printf("Mete Han: %s, %s, %s\n", imparatorluk.insan_imparatorlugu.Mete_Han.bonus_turu,
+                                     imparatorluk.insan_imparatorlugu.Mete_Han.bonus_degeri,
+                                     imparatorluk.insan_imparatorlugu.Mete_Han.aciklama);
+
+    printf("Yavuz Sultan Selim: %s, %s, %s\n", imparatorluk.insan_imparatorlugu.Yavuz_Sultan_Selim.bonus_turu,
+                                               imparatorluk.insan_imparatorlugu.Yavuz_Sultan_Selim.bonus_degeri,
+                                               imparatorluk.insan_imparatorlugu.Yavuz_Sultan_Selim.aciklama);
+
+    printf("Tugrul Bey: %s, %s, %s\n", imparatorluk.insan_imparatorlugu.Tugrul_Bey.bonus_turu,
+                                       imparatorluk.insan_imparatorlugu.Tugrul_Bey.bonus_degeri,
+                                       imparatorluk.insan_imparatorlugu.Tugrul_Bey.aciklama);
+
+    printf("Goruk Vahsi: %s, %s, %s\n", imparatorluk.ork_legi.Goruk_Vahsi.bonus_turu,
+                                        imparatorluk.ork_legi.Goruk_Vahsi.bonus_degeri,
+                                        imparatorluk.ork_legi.Goruk_Vahsi.aciklama);
+
+    printf("Thruk Kemikkiran: %s, %s, %s\n", imparatorluk.ork_legi.Thruk_Kemikkiran.bonus_turu,
+                                             imparatorluk.ork_legi.Thruk_Kemikkiran.bonus_degeri,
+                                             imparatorluk.ork_legi.Thruk_Kemikkiran.aciklama);
+
+    printf("Vrog Kafakiran: %s, %s, %s\n", imparatorluk.ork_legi.Vrog_Kafakiran.bonus_turu,
+                                           imparatorluk.ork_legi.Vrog_Kafakiran.bonus_degeri,
+                                           imparatorluk.ork_legi.Vrog_Kafakiran.aciklama);
+
+    printf("Ugar Zalim: %s, %s, %s\n", imparatorluk.ork_legi.Ugar_Zalim.bonus_turu,
+                                       imparatorluk.ork_legi.Ugar_Zalim.bonus_degeri,
+                                       imparatorluk.ork_legi.Ugar_Zalim.aciklama);
+
+    // JSON için ayrılan belleği temizle
+    free(json);
 
     return 0;
 }

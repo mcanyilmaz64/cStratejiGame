@@ -1,54 +1,105 @@
-#ifndef OYUN_H
-#define OYUN_H
+#ifndef STRUCTS_H
+#define STRUCTS_H
 
-// Kahraman bilgilerini tutan struct
+
 typedef struct {
-    char isim[50];            // Kahramanın ismi
-    char bonus_turu[20];       // Bonus türü (saldiri, savunma, vb.)
-    int bonus_degeri;          // Bonus değeri (örneğin %20)
-    char aciklama[100];        // Kahramanın açıklaması
-} Kahraman;
+    char etki_turu[20];
+    int etki_degeri;
+    char aciklama[256];
+} CreatureEffect;
 
-// Canavar bilgilerini tutan struct
 typedef struct {
-    char isim[50];            // Canavarın ismi
-    char etki_turu[20];       // Etki türü (saldiri, savunma, vb.)
-    int etki_degeri;          // Etki değeri (örneğin %20)
-    char aciklama[100];       // Canavarın açıklaması
-} Canavar;
+    CreatureEffect ejderha;
+    CreatureEffect agri_dagi_devleri;
+    CreatureEffect tepegoz;
+    CreatureEffect karakurt;
+    CreatureEffect samur;
+} InsanImparatorluguCreatures;
 
-// Birimlerin sayısını tutan struct (insan ve ork için)
 typedef struct {
-    int piyadeler;
-    int okcular;
-    int suvariler;
-    int kusatma_makineleri;
-    int ork_dovusculeri;
-    int mizrakcilar;
-    int varg_binicileri;
-    int troller;
-} Birimler;
+    CreatureEffect kara_troll;
+    CreatureEffect golge_kurtlari;
+    CreatureEffect camur_devleri;
+    CreatureEffect ates_iblisi;
+    CreatureEffect makrog_savas_beyi;
+    CreatureEffect buz_devleri;
+} OrkLegiCreatures;
 
-// Araştırma seviyelerini tutan struct (insan ve ork için)
+////////////////////////////////////////////////////////////////////////
+
 typedef struct {
-    int savunma_ustaligi;
-    int saldiri_gelistirmesi;
-    int kusatma_ustaligi;  // Orklar bu alanı kullanmazsa 0 olur
-    int elit_egitim;       // İnsanlar bu alanı kullanmazsa 0 olur
-} ArastirmaSeviyesi;
+    char bonus_turu[20];  // Bonus türü: savunma, saldiri, kritik_sans
+    char bonus_degeri[10];    // Bonus değeri
+    char aciklama[256];   // Bonusun açıklaması
+} HeroBonus;
 
-// İnsan İmparatorluğu ve Ork Legi için ana struct
 typedef struct {
-    Birimler birimler;                    // Birimler
-    Kahraman kahramanlar[10];             // Kahramanlar (maksimum 10)
-    Canavar canavarlar[10];               // Canavarlar (maksimum 10)
-    ArastirmaSeviyesi arastirma;          // Araştırma seviyeleri
-} Taraf;
+    HeroBonus Alparslan;
+    HeroBonus Fatih_Sultan_Mehmet;
+    HeroBonus Mete_Han;
+    HeroBonus Yavuz_Sultan_Selim;
+    HeroBonus Tugrul_Bey;
+} InsanImparatorluguHeroes;
 
-// Oyunun genel durumu için struct
 typedef struct {
-    Taraf insan_imparatorlugu;
-    Taraf ork_legi;
-} OyunDurumu;
+    HeroBonus Goruk_Vahsi;
+    HeroBonus Thruk_Kemikkiran;
+    HeroBonus Vrog_Kafakiran;
+    HeroBonus Ugar_Zalim;
+} OrkLegiHeroes;
 
-#endif // OYUN_H
+////////////////////////////////////////////////////////////////////////
+
+typedef struct {
+    int saldiri;
+    int savunma;
+    int saglik;
+    int kritik_sans;
+} UnitStats;
+
+typedef struct {
+    UnitStats piyadeler;
+    UnitStats okcular;
+    UnitStats suvariler;
+    UnitStats kusatma_makineleri;
+} InsanImparatorluguUnits;
+
+typedef struct {
+    UnitStats ork_dovusculeri;
+    UnitStats mizrakcilar;
+    UnitStats varg_binicileri;
+    UnitStats troller;
+} OrkLegiUnits;
+
+//////////////////////////////////////////////////////////////////////////
+
+typedef struct {
+    int deger;         // Araştırmanın sağladığı bonus değeri
+    char aciklama[256]; // Araştırmanın açıklaması
+} ResearchLevel;
+
+typedef struct {
+    ResearchLevel seviye_1;
+    ResearchLevel seviye_2;
+    ResearchLevel seviye_3;
+} Research;
+
+typedef struct {
+    Research savunma_ustaligi;
+    Research saldiri_gelistirmesi;
+    Research elit_egitim;
+    Research kusatma_ustaligi;
+} ResearchStats;
+
+//////////////////////////////////////////////////////////////////////////
+
+// Ana yapılar
+typedef struct {
+    InsanImparatorluguHeroes insan_imparatorlugu;
+    OrkLegiHeroes ork_legi;
+} Imparatorluk;
+
+char* readFile(const char* filename);
+void parseLeader(char* json, const char* leaderName, HeroBonus* leaderBonus);
+void parseJSON(char* json, Imparatorluk* imparatorluk);
+#endif 
