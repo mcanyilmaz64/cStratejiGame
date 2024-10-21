@@ -94,12 +94,24 @@ typedef struct {
 //////////////////////////////////////////////////////////////////////////
 
 // Ana yapılar
-typedef struct {
+/*typedef struct {
     InsanImparatorluguHeroes insan_imparatorlugu;
     OrkLegiHeroes ork_legi;
-} Imparatorluk;
+    InsanImparatorluguCreatures insan_imparatorlugu_c;
+    OrkLegiCreatures ork_legi_c;
+    
+} Imparatorluk;*/
 
 char* readFile(const char* filename);
-void parseLeader(char* json, const char* leaderName, HeroBonus* leaderBonus);
-void parseJSON(char* json, Imparatorluk* imparatorluk);
+void parseHero(char* json, const char* heroName, HeroBonus* heroBonus);
+void parseHeroesJSON(char* json, InsanImparatorluguHeroes* insanHeroes, OrkLegiHeroes* orkHeroes);
+void parseCreature(char* json, const char* creatureName, CreatureEffect* creatureEffect);
+void parseCreaturesJSON(char* json, InsanImparatorluguCreatures* insanCreatures, OrkLegiCreatures* orkCreatures);
+void parseUnit(char* json, const char* unitName, UnitStats* unitStats);
+void parseUnitsJSON(char* json, InsanImparatorluguUnits* insanUnits, OrkLegiUnits* orkUnits);
+void parseResearchLevel(char* json, const char* levelName, ResearchLevel* researchLevel);
+void parseResearch(char* json, const char* researchName, Research* research);
+void parseResearchJSON(char* json, ResearchStats* researchStats);
+
+
 #endif 

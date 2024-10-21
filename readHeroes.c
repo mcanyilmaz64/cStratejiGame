@@ -1,7 +1,10 @@
+#ifndef READHEROES_H
+#define READHEROES_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "oyun.h"
+
 
 // Dosya okuma fonksiyonu
 char* readFile(const char* filename) {
@@ -76,3 +79,4 @@ void parseJSON(char* json, Imparatorluk* imparatorluk) {
     parseLeader(json, "\"Vrog_Kafakiran\"", &imparatorluk->ork_legi.Vrog_Kafakiran);
     parseLeader(json, "\"Ugar_Zalim\"", &imparatorluk->ork_legi.Ugar_Zalim);
 }
+#endif
