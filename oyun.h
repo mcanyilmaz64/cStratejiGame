@@ -28,9 +28,9 @@ typedef struct {
 ////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-    char bonus_turu[20];  // Bonus türü: savunma, saldiri, kritik_sans
-    char bonus_degeri[10];    // Bonus değeri
-    char aciklama[256];   // Bonusun açıklaması
+    char bonus_turu[20];  
+    char bonus_degeri[10];    
+    char aciklama[256];   
 } HeroBonus;
 
 typedef struct {
@@ -55,6 +55,7 @@ typedef struct {
     int savunma;
     int saglik;
     int kritik_sans;
+    int miktar;
 } UnitStats;
 
 typedef struct {
@@ -74,8 +75,8 @@ typedef struct {
 //////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-    int deger;         // Araştırmanın sağladığı bonus değeri
-    char aciklama[256]; // Araştırmanın açıklaması
+    int deger;         
+    char aciklama[256]; 
 } ResearchLevel;
 
 typedef struct {
@@ -90,6 +91,20 @@ typedef struct {
     Research elit_egitim;
     Research kusatma_ustaligi;
 } ResearchStats;
+
+typedef struct {
+    HeroBonus kahraman;
+    InsanImparatorluguUnits birimler;
+    CreatureEffect canavar;
+    ResearchStats arastirma;
+} InsanTaraf;
+
+typedef struct {
+    HeroBonus kahraman;
+    OrkLegiUnits birimler;
+    CreatureEffect canavar;
+    ResearchStats arastirma;
+} OrkTaraf;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -112,6 +127,8 @@ void parseUnitsJSON(char* json, InsanImparatorluguUnits* insanUnits, OrkLegiUnit
 void parseResearchLevel(char* json, const char* levelName, ResearchLevel* researchLevel);
 void parseResearch(char* json, const char* researchName, Research* research);
 void parseResearchJSON(char* json, ResearchStats* researchStats);
+void parseSenaryoJSON(char* json, InsanTaraf* insanTaraf, OrkTaraf* orkTaraf);
+
 
 
 #endif 

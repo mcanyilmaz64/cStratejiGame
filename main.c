@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "oyun.h"  // heroesParse.h başlık dosyasını dahil ediyoruz
+#include "oyun.h"  
 
-// Dosya okuma fonksiyonu
+
 char* readFile(const char* filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -32,7 +32,7 @@ char* readFile(const char* filename) {
     return buffer;
 }
 
-// Liderlerin bilgilerini ayrıştıran fonksiyon
+
 void parseHero(char* json, const char* heroName, HeroBonus* heroBonus) {
     char *hero = strstr(json, heroName);
     if (hero != NULL) {
@@ -130,6 +130,7 @@ void parseUnit(char* json, const char* unitName, UnitStats* unitStats) {
         sscanf(strstr(unit, "\"savunma\""), "\"savunma\": %d,", &unitStats->savunma);
         sscanf(strstr(unit, "\"saglik\""), "\"saglik\": %d,", &unitStats->saglik);
         sscanf(strstr(unit, "\"kritik_sans\""), "\"kritik_sans\": %d,", &unitStats->kritik_sans);
+        
     } else {
         unitStats->saldiri = 0;
         unitStats->savunma = 0;
@@ -179,89 +180,69 @@ void parseResearchJSON(char* json, ResearchStats* researchStats) {
     parseResearch(json, "\"elit_egitim\"", &researchStats->elit_egitim);
     parseResearch(json, "\"kusatma_ustaligi\"", &researchStats->kusatma_ustaligi);
 }
+void parseSenaryoJSON(char* json, InsanTaraf* insanTaraf, OrkTaraf* orkTaraf) {
+    // JSON içinde insan_imparatorlugu verisini bul
+    char *insan_data = strstr(json, "\"insan_imparatorlugu\"");
+    if (insan_data == NULL) {
+        printf("İnsan İmparatorluğu verisi bulunamadı!\n");
+        return;
+    }
+
+    // Kahramanlar verisini ayrıştır
+    char *kahramanlar_data = strstr(insan_data, "\"kahramanlar\"");
+    if (kahramanlar_data != NULL) {
+        printf(" %s\n", kahramanlar_data);  // Veriyi ekrana yazdır
+        sscanf(kahramanlar_data, "\"kahramanlar\": \"%[^\"]\"", insanTaraf->kahraman.bonus_turu);
+    } else {
+        printf("İnsan İmparatorluğu kahramanlar verisi bulunamadi.\n");
+    }
+
+    // Benzer şekilde Ork tarafı için de güncelleyelim
+    char *ork_data = strstr(json, "\"ork_legi\"");
+    if (ork_data == NULL) {
+        printf("Ork Lejyonu verisi bulunamadı!\n");
+        return;
+    }
+
+    char *ork_kahramanlar_data = strstr(ork_data, "\"kahramanlar\"");
+    if (ork_kahramanlar_data != NULL) {
+        printf("Ork Lejyonu Kahramanlar: %s\n", ork_kahramanlar_data);
+        sscanf(ork_kahramanlar_data, "\"kahramanlar\": \"%[^\"]\"", orkTaraf->kahraman.bonus_turu);
+    } else {
+        printf("Ork Lejyonu kahramanlar verisi bulunamadı.\n");
+    }
+}
+
 
 
 
 int main() {
-    // 1. heroes.json dosyasını oku
-    char *json_heroes = readFile("Files/heroes.json");
-    if (json_heroes == NULL) {
+    // Senaryo dosyasını oku
+    char *json_scenario = readFile("Files/8.json");
+    if (json_scenario == NULL) {
+        printf("Senaryo dosyası okunamadı.\n");
         return 1;
     }
 
-    // Liderler için yapılar
-    InsanImparatorluguHeroes insan_heroes;
-    OrkLegiHeroes ork_heroes;
+    // Taraf yapıları
+    InsanTaraf insanTaraf;
+    OrkTaraf orkTaraf;
 
-    // Lider verilerini ayrıştır
-    parseHeroesJSON(json_heroes, &insan_heroes, &ork_heroes);
-    free(json_heroes);  // heroes.json verisini temizle
+    // JSON'u ayrıştır ve iki tarafın verilerini ayır
+    parseSenaryoJSON(json_scenario, &insanTaraf, &orkTaraf);
 
-    // 2. units.json dosyasını oku
-    char *json_units = readFile("Files/unit_types.json");
-    if (json_units == NULL) {
-        return 1;
-    }
-
-    // Birimler için yapılar
-    InsanImparatorluguUnits insan_units;
-    OrkLegiUnits ork_units;
-
-    // Birim verilerini ayrıştır
-    parseUnitsJSON(json_units, &insan_units, &ork_units);
-    free(json_units);  // units.json verisini temizle
-
-    // 3. creatures.json dosyasını oku
-    char *json_creatures = readFile("Files/creatures.json");
-    if (json_creatures == NULL) {
-        return 1;
-    }
-
-    // Yaratıklar için yapılar
-    InsanImparatorluguCreatures insan_creatures;
-    OrkLegiCreatures ork_creatures;
-
-    // Yaratık verilerini ayrıştır
-    parseCreaturesJSON(json_creatures, &insan_creatures, &ork_creatures);
-    free(json_creatures);  // creatures.json verisini temizle
-
-    // 4. research.json dosyasını oku
-    char *json_research = readFile("Files/research.json");
-    if (json_research == NULL) {
-        return 1;
-    }
-
-    // Araştırmalar için yapılar
-    ResearchStats researchStats;
-
-    // Araştırma verilerini ayrıştır
-    parseResearchJSON(json_research, &researchStats);
-    free(json_research);  // research.json verisini temizle
-
-    // 5. Verileri ekrana yazdır
-    printf("Alparslan: %s, %s, %s\n", insan_heroes.Alparslan.bonus_turu,
-                                      insan_heroes.Alparslan.bonus_degeri,
-                                      insan_heroes.Alparslan.aciklama);
-
-    printf("Piyadeler: Saldiri: %d, Savunma: %d, Saglik: %d, Kritik Sans: %d\n", 
-           insan_units.piyadeler.saldiri, insan_units.piyadeler.savunma, 
-           insan_units.piyadeler.saglik, insan_units.piyadeler.kritik_sans);
-
-    printf("Ejderha: %s, %d, %s\n", 
-           insan_creatures.ejderha.etki_turu, insan_creatures.ejderha.etki_degeri, 
-           insan_creatures.ejderha.aciklama);
-
-    // Araştırma bilgilerini ekrana yazdır
-    printf("Savunma Ustaligi Seviye 1: Deger: %d, Aciklama: %s\n", 
-           researchStats.savunma_ustaligi.seviye_1.deger,
-           researchStats.savunma_ustaligi.seviye_1.aciklama);
-
-    printf("Saldiri Gelistirmesi Seviye 2: Deger: %d, Aciklama: %s\n", 
-           researchStats.saldiri_gelistirmesi.seviye_2.deger,
-           researchStats.saldiri_gelistirmesi.seviye_2.aciklama);
+    // Belleği serbest bırak
+    free(json_scenario);
 
     return 0;
 }
+
+
+
+
+
+
+
 
 
 
